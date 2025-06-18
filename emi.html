@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EMI Calculator with Auto Duration</title>
+  <style>
+    body { font-family: Arial; background: #f8f8f8; padding: 20px; }
+    .box { max-width: 400px; background: white; margin: auto; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input, select, button { width: 100%; padding: 10px; margin-top: 10px; border-radius: 6px; border: 1px solid #ccc; }
+    button { background-color: #007bff; color: white; border: none; }
+    button:hover { background-color: #0056b3; cursor: pointer; }
+    .hidden { display: none; }
+    .success { color: green; }
+    .danger { color: red; }
+    h2, h3 { text-align: center; }
+  </style>
+</head>
+<body>
+
+<h2>Self EMI Eligibility Checker</h2>
+
+<!-- STEP 1 -->
+<div class="box" id="step1">
+  <input type="text" id="serviceNo" placeholder="Enter 3-digit Service No" maxlength="3">
+  <button onclick="checkEligibility()">Check Eligibility</button>
+  <div id="result"></div>
+  <button id="proceedBtn" class="hidden" onclick="showEMICalculator()">Proceed Further</button>
+</div>
+
+<!-- STEP 2 -->
+<div class="box hidden" id="step2">
+  <h3>EMI Calculator</h3>
+  <p><strong>Name:</strong> <span id="clientName"></span></p>
+  <p><strong>Category:</strong> <span id="clientCategory"></span></p>
+
+  <label>Total Product Price (₹):</label>
+  <input type="number" id="totalAmount" value="50000">
+
+  <label>Select Downpayment %:</label>
+  <select id="dpPercent" onchange="autoSetDurationAndCalcEMI()">
+    <option value="">Select</option>
+    <option value="10">10%</option>
+    <option value="20">20%</option>
+    <option value="30">30%</option>
+    <option value="50">50%</option>
+  </select>
+
+  <label> EMI Duration:</label>
+  <input type="text" id="duration" disabled>
+
+  <div id="emiResult"></div>
+  <button class="hidden" id="goToPayment" onclick="goToPayment()">Go to Payment</button>
+</div>
+
+<!-- STEP 3 -->
+<div class="box hidden" id="step3">
+  <h3>Payment Summary</h3>
+  <div id="paymentSummary"></div>
+  <button onclick="payNow()">Pay Now</button>
+  <div id="paymentMessage" style="margin-top: 15px; text-align: center;"></div>
+</div>
+
+<script>
+  const clients = {
+    "101": { name: "Rajesh Kumar", category: "LMV1" },
+    "102": { name: "Sneha Mehta", category: "LMV3" },
+    "103": { name: "Aamir Khan", category: "LMV2" }
+  };
+
+  const eligibleCategories = ["LMV1", "LMV2"];
+  let currentClient = null;
+  let paymentData = {};
+
+  const dpToMonths = {
+    10: 6,
+    20: 9,
+    30: 12,
+    50: 18
+  };
+
+  function checkEligibility() {
+    const serviceNo = document.getElementById("serviceNo").value.trim();
+    const result = document.getElementById("result");
+    const proceedBtn = document.getElementById("proceedBtn");
+
+    if (clients[serviceNo]) {
+      const client = clients[serviceNo];
+      currentClient = client;
+
+      const isEligible = eligibleCategories.includes(client.category);
+      result.innerHTML = `
+        <p><strong>Name:</strong> ${client.name}</p>
+        <p><strong>Category:</strong> ${client.category}</p>
+        <p class="${isEligible ? 'success' : 'danger'}">
+          ${isEligible ? '✅ Eligible for EMI.' : '❌ Not eligible for EMI.'}
+        </p>
+      `;
+      proceedBtn.classList.toggle("hidden", !isEligible);
+    } else {
+      result.innerHTML = `<p class="danger">❌ Invalid Service Number</p>`;
+      proceedBtn.classList.add("hidden");
+    }
+  }
+
+  function showEMICalculator() {
+    document.getElementById("step1").classList.add("hidden");
+    document.getElementById("step2").classList.remove("hidden");
+
+    document.getElementById("clientName").textContent = currentClient.name;
+    document.getElementById("clientCategory").textContent = currentClient.category;
+  }
+
+  function autoSetDurationAndCalcEMI() {
+    const dp = parseFloat(document.getElementById("dpPercent").value);
+    const total = parseFloat(document.getElementById("totalAmount").value);
+
+    if (!dp || !total) return;
+
+    const months = dpToMonths[dp];
+    document.getElementById("duration").value = months + " months";
+
+    const downPayment = (dp / 100) * total;
+    const remaining = total - downPayment;
+    const monthlyEMI = (remaining / months).toFixed(2);
+
+    paymentData = {
+      total,
+      dpPercent: dp,
+      downPayment: downPayment.toFixed(2),
+      remaining: remaining.toFixed(2),
+      duration: months,
+      monthlyEMI
+    };
+
+    document.getElementById("emiResult").innerHTML = `
+      <p><strong>Downpayment:</strong> ₹${paymentData.downPayment}</p>
+      <p><strong>Remaining:</strong> ₹${paymentData.remaining}</p>
+      <p><strong>Monthly EMI:</strong> ₹${paymentData.monthlyEMI} for ${months} months</p>
+    `;
+
+    document.getElementById("goToPayment").classList.remove("hidden");
+  }
+
+  function goToPayment() {
+    document.getElementById("step2").classList.add("hidden");
+    document.getElementById("step3").classList.remove("hidden");
+
+    document.getElementById("paymentSummary").innerHTML = `
+      <p><strong>Name:</strong> ${currentClient.name}</p>
+      <p><strong>Total Amount:</strong> ₹${paymentData.total}</p>
+      <p><strong>Downpayment:</strong> ₹${paymentData.downPayment} (${paymentData.dpPercent}%)</p>
+      <p><strong>Remaining:</strong> ₹${paymentData.remaining}</p>
+      <p><strong>EMI Duration:</strong> ${paymentData.duration} months</p>
+      <p><strong>Monthly EMI:</strong> ₹${paymentData.monthlyEMI}</p>
+    `;
+  }
+
+  function payNow() {
+    document.getElementById("paymentMessage").innerHTML = `<p class="success">✅ Payment Done Successfully! EMI Plan Activated.</p>`;
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,156 @@
+@media (max-width: 768px) {
+    header#header .navbar-form {
+        line-height: 0;
+    }
+    footer#footer .contact-details {
+        margin: 30px 0 0;
+    }
+    footer#footer .contact-details ul li i {
+        font-size: 53px;
+    }
+    .footer-privacy ul li:nth-child(even) {
+        display: none;
+    }
+    .newsletter .input-group .input-group-btn {
+        display: none;
+    }
+    .newsletter .input-group .form-control {
+        width: 100%;
+    }
+    .newsletter .input-group {
+        width: 100%;
+    }
+    .blog-navbar ul.blog-filter > li:first-child > a {
+        padding: 0 18px 0;
+    }
+    .blog-navbar ul.blog-filter > li > a {
+        border-right: medium none;
+    }
+    .blog-navbar ul.blog-filter > li:last-child > a {
+        padding: 0 13px 0;
+    }
+    .blog-navbar .form-group {
+        margin-bottom: 0 !important;
+    }
+    .blog-navbar .search-button {
+        display: none;
+    }
+    .portfolio-navbar .portfolio-filter > li > a {
+        border-right: medium none !important;
+        padding: 0 18px 0 !important;
+    }
+    .portfolio-navbar .portfolio-filter > li:last-child > a {
+        padding: 0 13px !important;
+    }
+    #nav-wrapp .navbar-default ul.nav li:first-child {
+        padding: 0 26px 0 26px;
+    }
+    #nav-wrapp .navbar-default li.nested-dropdown:before {
+        content:"\e88a";
+    }
+    #nav-wrapp .navbar-default li.nested-dropdown ul.nested-dropdown-menu {
+        position: relative;
+        margin: 0 0 0;
+        left: 0;
+        top: 0;
+    }
+    #fw-nav-wrapp .navbar-default li.nested-dropdown:before {
+        content:"\e88a";
+    }
+    #fw-nav-wrapp .navbar-default li.nested-dropdown ul.nested-dropdown-menu {
+        position: relative;
+        margin: 0 0 0;
+        left: 0;
+        top: 0;
+    }
+    #fw-nivo-wrapp .nivo-slider .nivo-directionNav a {
+        font-size: 36px;
+        top:50%;
+        margin-top: -20px;
+    }
+}
+@media (max-width: 992px) {
+    .hide-padding-left {
+        padding-left: 10px !important;
+    }
+    .hide-padding-right {
+        padding-right: 10px !important;
+    }
+    .newsletter .input-group .input-group-btn {
+        display: none;
+    }
+    .newsletter .input-group .form-control {
+        width: 100%;
+    }
+    .newsletter .input-group {
+        width: 100%;
+    }
+    #nav-wrapp {
+        background: none repeat scroll 0 0 transparent;
+    }
+    #nav-wrapp .slogan {
+        margin-bottom: 15px;
+        margin-top: 15px;
+    }
+    #nav-wrapp .navbar-default {
+        margin-bottom: 15px;
+    }
+    #main-slider .pager-container {
+        border: medium none;
+        margin: 0 0 30px 0;
+    }
+    #main-slider .pager-container:before {
+        display: none;
+    }
+    header#header .navbar-form {
+        line-height: 0;
+    }
+    .blog-navbar ul.blog-filter > li:first-child > a {
+        padding: 0 18px 0;
+    }
+    .blog-navbar ul.blog-filter > li > a {
+        border-right: medium none;
+    }
+    .blog-navbar ul.blog-filter > li:last-child > a {
+        padding: 0 13px 0;
+    }
+    .blog-navbar .form-group {
+        margin-bottom: 0 !important;
+    }
+    .blog-navbar .search-button {
+        display: none;
+    }
+    .portfolio-navbar .portfolio-filter > li > a {
+        border-right: medium none !important;
+        padding: 0 18px 0 !important;
+    }
+    .portfolio-navbar .portfolio-filter > li:last-child > a {
+        padding: 0 13px !important;
+    }
+    #nav-wrapp .navbar-default ul.nav li:first-child {
+        padding: 0 26px 0 26px;
+    }
+    #nav-wrapp .navbar-default li.nested-dropdown:before {
+        content:"\e88a";
+    }
+    #nav-wrapp .navbar-default li.nested-dropdown ul.nested-dropdown-menu {
+        position: relative;
+        margin: 0 0 0;
+        left: 0;
+        top: 0;
+    }
+    #fw-nav-wrapp .navbar-default li.nested-dropdown:before {
+        content:"\e88a";
+    }
+    #fw-nav-wrapp .navbar-default li.nested-dropdown ul.nested-dropdown-menu {
+        position: relative;
+        margin: 0 0 0;
+        left: 0;
+        top: 0;
+    }
+    #fw-nivo-wrapp .nivo-slider .nivo-directionNav a {
+        font-size: 56px;
+        top:50%;
+        margin-top: -30px;
+    }
+}
