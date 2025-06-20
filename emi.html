@@ -5,30 +5,44 @@
   <title>EMI Eligibility Checker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 20px; }
-    .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
-    h2 { text-align: center; font-size: 28px; color: #333; }
+    body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; }
+    .container { max-width: 500px; background: white; padding: 30px; border-radius: 10px; margin: auto; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+    h2 { text-align: center; color: #333; font-size: 26px; }
     input, button { width: 100%; padding: 12px; margin-top: 15px; font-size: 18px; border-radius: 6px; border: 1px solid #ccc; }
-    button { background-color: #007bff; color: white; border: none; cursor: pointer; }
-    button:hover { background-color: #0056b3; }
+    button { background-color: #dd5505; color: white; border: none; }
+    button:hover { background-color: #dd5505; cursor: pointer; }
     .bold { font-weight: bold; }
-    .result { margin-top: 20px; font-size: 18px; }
+    .result, .emi-section { font-size: 18px; margin-top: 20px; }
     .green { color: green; }
     .red { color: red; }
+    .hidden { display: none; }
+    .pay-btn { background: #28a745; }
+    .pay-btn:hover { background: #1e7e34; }
   </style>
 </head>
 <body>
-  <div class="container">
+
+  <!-- Step 1: Service No Check -->
+  <div class="container" id="step1">
     <h2>EMI Eligibility Checker</h2>
     <input type="text" id="serviceNo" placeholder="Enter Service Number">
     <button onclick="checkEMI()">Check</button>
     <div id="output" class="result"></div>
+    <button id="proceedBtn" class="hidden" onclick="showEMIBreakdown()">Proceed to EMI</button>
+  </div>
+
+  <!-- Step 2: EMI Display -->
+  <div class="container hidden" id="step2">
+    <h2>EMI Breakdown</h2>
+    <div id="emiDetails" class="emi-section"></div>
+    <button class="pay-btn" onclick="payNow()">Pay Now</button>
+    <div id="paidMsg" class="green bold" style="margin-top: 15px;"></div>
   </div>
 
   <script>
     const emiData = {
       "670119030": {
-        "Name": "SHRI  VIJAY GOYAL W/O SITA RAM",
+        "Name": "SHRI VIJAY GOYAL W/O SITA RAM",
         "Category": "LMV1",
         "Service Status": "LIVE",
         "Total": 7227.74,
@@ -108,7 +122,7 @@
         "Consumption": 0,
         "Principle": 2323.79
       },
-       "670385256": {
+      "670385256": {
         "Name": "DESHRAJ SINGH",
         "Category": "LMV1",
         "Service Status": "TD + 0",
@@ -116,22 +130,27 @@
         "Arrear": 0.00,
         "Consumption": 600,
         "Principle": 1500
-      },
+      }
     };
+
+    let currentClient = null;
+    let downpayment = 0, emiAmount = 0, dpPercent = 0;
 
     function checkEMI() {
       const sn = document.getElementById("serviceNo").value.trim();
       const output = document.getElementById("output");
+      const proceedBtn = document.getElementById("proceedBtn");
+      document.getElementById("paidMsg").textContent = ""; // reset
 
       if (!emiData[sn]) {
         output.innerHTML = `<span class="red bold">❌ Service number not found.</span>`;
+        proceedBtn.classList.add("hidden");
         return;
       }
 
       const data = emiData[sn];
-      const {
-        Name, Category, "Service Status": status, Arrear, Consumption, Total
-      } = data;
+      currentClient = data;
+      const { Name, Category, "Service Status": status, Arrear, Consumption, Total } = data;
 
       if (Arrear <= 0) {
         output.innerHTML = `
@@ -140,28 +159,48 @@
           <p><span class="bold">Category:</span> ${Category}</p>
           <p class="red bold">❌ Not eligible for EMI (Arrear is 0)</p>
         `;
+        proceedBtn.classList.add("hidden");
         return;
       }
 
-      // Determine logic based on service status
-      let downpaymentPercent = 0;
-      if (status === "TD" && Consumption === 0) downpaymentPercent = 20;
-      else if (status === "TD" && Consumption > 0) downpaymentPercent = 30;
-      else if (status === "LIVE" || status === "PD") downpaymentPercent = 40;
+      // Determine logic
+      if ((status === "TD" || status.includes("TD")) && Consumption == 0) dpPercent = 20;
+      else if ((status === "TD" || status.includes("TD")) && Consumption > 0) dpPercent = 30;
+      else if (status === "LIVE" || status === "PD") dpPercent = 40;
 
-      const downpayment = ((downpaymentPercent / 100) * Total).toFixed(2);
-      const emiAmount = (Total - downpayment).toFixed(2);
+      downpayment = ((dpPercent / 100) * Total).toFixed(2);
+      emiAmount = (Total - downpayment).toFixed(2);
 
       output.innerHTML = `
         <p><span class="bold">Name:</span> ${Name}</p>
+        <p><span class="bold">Status:</span> ${status}</p>
         <p><span class="bold">Category:</span> ${Category}</p>
-        <p><span class="bold">Service Status:</span> ${status}</p>
         <p><span class="bold">Total Arrear:</span> ₹${Total}</p>
         <p class="green bold">✅ Eligible for EMI</p>
-        <p><span class="bold">Suggested Downpayment:</span> ₹${downpayment} (${downpaymentPercent}%)</p>
-        <p><span class="bold">EMI Amount:</span> ₹${emiAmount}</p>
+      `;
+      proceedBtn.classList.remove("hidden");
+    }
+
+    function showEMIBreakdown() {
+      document.getElementById("step1").classList.add("hidden");
+      document.getElementById("step2").classList.remove("hidden");
+
+      const e = document.getElementById("emiDetails");
+      e.innerHTML = `
+        <p><span class="bold">Name:</span> ${currentClient.Name}</p>
+        <p><span class="bold">Service Status:</span> ${currentClient["Service Status"]}</p>
+        <p><span class="bold">Category:</span> ${currentClient.Category}</p>
+        <p><span class="bold">Total Arrear:</span> ₹${currentClient.Total}</p>
+        <hr>
+        <p><span class="bold green">📊 Downpayment (${dpPercent}%):</span> ₹${downpayment}</p>
+        <p><span class="bold green">💳 EMI Amount:</span> ₹${emiAmount}</p>
       `;
     }
+
+    function payNow() {
+      document.getElementById("paidMsg").innerHTML = "✅ Payment successful! EMI Plan activated.";
+    }
   </script>
+
 </body>
 </html>
