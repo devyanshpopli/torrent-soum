@@ -2,53 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>EMI Eligibility Checker</title>
+  <title>EMI Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; }
-    .container { max-width: 500px; background: white; padding: 30px; border-radius: 10px; margin: auto; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
-    h2 { text-align: center; color: #333; font-size: 26px; }
-    input, button, select { width: 100%; padding: 12px; margin-top: 15px; font-size: 18px; border-radius: 6px; border: 1px solid #ccc; }
-    button { background-color: orange; color: white; border: none; }
-    button:hover { background-color: darkorange; cursor: pointer; }
+    body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 20px; }
+    .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2 { text-align: center; font-size: 26px; color: #333; }
+    input, select, button { width: 100%; padding: 12px; margin-top: 15px; font-size: 18px; border-radius: 6px; border: 1px solid #ccc; }
+    button { background-color: #007bff; color: white; border: none; }
+    button:hover { background-color: #0056b3; cursor: pointer; }
+    .hidden { display: none; }
+    .result, .emi-section { margin-top: 20px; font-size: 18px; }
     .bold { font-weight: bold; }
-    .result, .emi-section { font-size: 18px; margin-top: 20px; }
     .green { color: green; }
     .red { color: red; }
-    .hidden { display: none; }
-    .pay-btn { background: #28a745; }
-    .pay-btn:hover { background: #1e7e34; }
   </style>
 </head>
 <body>
 
-  <!-- Step 1 -->
-  <div class="container" id="step1">
-    <h2>EMI Eligibility Checker</h2>
-    <input type="text" id="serviceNo" placeholder="Enter Service Number">
-    <button onclick="checkEMI()">Check</button>
-    <div id="output" class="result"></div>
-    <button id="proceedBtn" class="hidden" onclick="showEMIBreakdown()">Proceed to EMI</button>
-  </div>
+<div class="container" id="step1">
+  <h2>EMI Eligibility Checker</h2>
+  <input type="text" id="serviceNo" placeholder="Enter Service Number">
+  <button onclick="checkEMI()">Check</button>
+  <div id="output" class="result"></div>
+  <button id="proceedBtn" class="hidden" onclick="showEMIBreakdown()">Proceed to EMI</button>
+</div>
 
-  <!-- Step 2 -->
-  <div class="container hidden" id="step2">
-    <h2>EMI Breakdown</h2>
-    <div id="emiDetails" class="emi-section"></div>
-    <label for="emiCount"><span class="bold">Select Number of EMIs:</span></label>
-    <select id="emiCount" onchange="updateMonthlyEMI()">
-      <option value="">-- Choose --</option>
-      <option value="3">3 months</option>
-      <option value="6">6 months</option>
-      <option value="9">9 months</option>
-      <option value="12">12 months</option>
-    </select>
-    <div id="monthlyEmi" class="emi-section"></div>
-    <button class="pay-btn hidden" id="payBtn" onclick="payNow()">Pay Now</button>
-    <div id="paidMsg" class="green bold" style="margin-top: 15px;"></div>
-  </div>
+<div class="container hidden" id="step2">
+  <h2>EMI Breakdown</h2>
+  <div id="emiDetails" class="emi-section"></div>
+  <label for="emiCount"><span class="bold">Select No. of EMIs:</span></label>
+  <select id="emiCount" onchange="updateMonthlyEMI()">
+    <option value="">-- Select --</option>
+    <option value="3">3 months</option>
+    <option value="6">6 months</option>
+    <option value="9">9 months</option>
+    <option value="12">12 months</option>
+  </select>
+  <div id="monthlyEmi" class="emi-section"></div>
+  <button class="hidden" id="payBtn" onclick="payNow()">Pay Now</button>
+  <div id="paidMsg" class="green bold" style="margin-top: 15px;"></div>
+</div>
 
-  <script>
+<script>
 const emiData = {
   "670119030": {
     "Name": "SHRI  VIJAY GOYAL W/O SITA RAM",
@@ -139,99 +135,112 @@ const emiData = {
     "Arrear": 0.00,
     "Consumption": 600,
     "Principle": 1500
+  },
+  "670119040": {
+    "Name": "SHRI RAM BAHADUR",
+    "Category": "LMV1",
+    "Service Status": "LIVE",
+    "Total": 7258.00,
+    "Arrear": 500.00,
+    "Consumption": 800,
+    "Principle": 7000.00
   }
 };
 
 
-    let currentClient = null;
-    let downpayment = 0, emiAmount = 0, dpPercent = 0;
+let currentClient = null;
+let downpayment = 0, emiAmount = 0, dpPercent = 0;
 
-    function checkEMI() {
-      const sn = document.getElementById("serviceNo").value.trim();
-      const output = document.getElementById("output");
-      const proceedBtn = document.getElementById("proceedBtn");
-      document.getElementById("paidMsg").textContent = "";
-      document.getElementById("payBtn").classList.add("hidden");
+function checkEMI() {
+  const sn = document.getElementById("serviceNo").value.trim();
+  const output = document.getElementById("output");
+  const proceedBtn = document.getElementById("proceedBtn");
+  document.getElementById("paidMsg").textContent = "";
+  document.getElementById("payBtn").classList.add("hidden");
 
-      if (!emiData[sn]) {
-        output.innerHTML = `<span class="red bold">❌ Service number not found.</span>`;
-        proceedBtn.classList.add("hidden");
-        return;
-      }
+  if (!emiData[sn]) {
+    output.innerHTML = `<span class="red bold">❌ Service number not found.</span>`;
+    proceedBtn.classList.add("hidden");
+    return;
+  }
 
-      const data = emiData[sn];
-      currentClient = data;
-      const { Name, Category, "Service Status": status, Arrear, Consumption, Total } = data;
+  const data = emiData[sn];
+  currentClient = data;
+  const { Name, Category, "Service Status": status, Arrear, Consumption, Total, Principle } = data;
 
-      if (Arrear <= 0) {
-        output.innerHTML = `
-          <p><span class="bold">Name:</span> ${Name}</p>
-          <p><span class="bold">Status:</span> ${status}</p>
-          <p><span class="bold">Category:</span> ${Category}</p>
-          <p class="red bold">❌ Not eligible for EMI (Arrear is 0)</p>
-        `;
-        proceedBtn.classList.add("hidden");
-        return;
-      }
+  if (Arrear <= 0) {
+    output.innerHTML = `
+      <p><span class="bold">Name:</span> ${Name}</p>
+      <p><span class="bold">Status:</span> ${status}</p>
+      <p><span class="bold">Category:</span> ${Category}</p>
+      <p class="red bold">❌ Not eligible for EMI (Arrear is 0)</p>
+    `;
+    proceedBtn.classList.add("hidden");
+    return;
+  }
 
-      // Logic
-      if ((status === "TD" || status.includes("TD")) && Consumption == 0) dpPercent = 20;
-      else if ((status === "TD" || status.includes("TD")) && Consumption > 0) dpPercent = 30;
-      else if (status === "LIVE" || status === "PD") dpPercent = 40;
+  // EMI Logic
+  if (status.includes("TD") && Consumption == 0) {
+    dpPercent = 20;
+    downpayment = (0.20 * Total);
+  }
+  else if (status.includes("TD") && Consumption > 0) {
+    dpPercent = 40;
+    downpayment = (0.40 * Total) + 600; // RODO
+  }
+  else if (status === "LIVE") {
+    dpPercent = 70;
+    downpayment = 0.70 * Total;
+  }
+  else if (status === "PD") {
+    const interest = Total - Principle;
+    downpayment = Principle + (0.52 * interest);
+    dpPercent = 0; // Custom calc
+  }
 
-      downpayment = ((dpPercent / 100) * Total).toFixed(2);
-      emiAmount = (Total - downpayment).toFixed(2);
+  emiAmount = (Total - downpayment);
 
-      output.innerHTML = `
-        <p><span class="bold">Name:</span> ${Name}</p>
-        <p><span class="bold">Status:</span> ${status}</p>
-        <p><span class="bold">Category:</span> ${Category}</p>
-        <p><span class="bold">Total Arrear:</span> ₹${Total}</p>
-        <p class="green bold">✅ Eligible for EMI</p>
-      `;
-      proceedBtn.classList.remove("hidden");
-    }
+  output.innerHTML = `
+    <p><span class="bold">Name:</span> ${Name}</p>
+    <p><span class="bold">Status:</span> ${status}</p>
+    <p><span class="bold">Category:</span> ${Category}</p>
+    <p><span class="bold">Total Outstanding:</span> ₹${Total.toFixed(2)}</p>
+    <p class="green bold">✅ Eligible for EMI</p>
+  `;
+  proceedBtn.classList.remove("hidden");
+}
 
-    function showEMIBreakdown() {
-      document.getElementById("step1").classList.add("hidden");
-      document.getElementById("step2").classList.remove("hidden");
+function showEMIBreakdown() {
+  document.getElementById("step1").classList.add("hidden");
+  document.getElementById("step2").classList.remove("hidden");
+  document.getElementById("emiCount").value = "";
+  document.getElementById("monthlyEmi").innerHTML = "";
 
-      document.getElementById("emiCount").value = "";
-      document.getElementById("monthlyEmi").innerHTML = "";
-      document.getElementById("paidMsg").innerHTML = "";
-      document.getElementById("payBtn").classList.add("hidden");
+  const e = document.getElementById("emiDetails");
+  e.innerHTML = `
+    <p><span class="bold">Name:</span> ${currentClient.Name}</p>
+    <p><span class="bold">Status:</span> ${currentClient["Service Status"]}</p>
+    <p><span class="bold">Category:</span> ${currentClient.Category}</p>
+    <p><span class="bold">Total:</span> ₹${currentClient.Total.toFixed(2)}</p>
+    <hr>
+    <p><span class="bold green">📊 Downpayment:</span> ₹${downpayment.toFixed(2)}</p>
+    <p><span class="bold green">💳 Remaining for EMI:</span> ₹${emiAmount.toFixed(2)}</p>
+  `;
+}
 
-      const e = document.getElementById("emiDetails");
-      e.innerHTML = `
-        <p><span class="bold">Name:</span> ${currentClient.Name}</p>
-        <p><span class="bold">Status:</span> ${currentClient["Service Status"]}</p>
-        <p><span class="bold">Category:</span> ${currentClient.Category}</p>
-        <p><span class="bold">Total Arrear:</span> ₹${currentClient.Total}</p>
-        <hr>
-        <p><span class="bold green">📊 Downpayment (${dpPercent}%):</span> ₹${downpayment}</p>
-        <p><span class="bold green">💳 EMI Amount:</span> ₹${emiAmount}</p>
-      `;
-    }
+function updateMonthlyEMI() {
+  const count = parseInt(document.getElementById("emiCount").value);
+  const monthly = (emiAmount / count).toFixed(2);
+  document.getElementById("monthlyEmi").innerHTML = `
+    <p><span class="bold green">💰 EMI per month (${count}):</span> ₹${monthly}</p>
+  `;
+  document.getElementById("payBtn").classList.remove("hidden");
+}
 
-    function updateMonthlyEMI() {
-      const emiCount = document.getElementById("emiCount").value;
-      const monthlyEmiDiv = document.getElementById("monthlyEmi");
-
-      if (!emiCount || emiAmount == 0) {
-        monthlyEmiDiv.innerHTML = "";
-        document.getElementById("payBtn").classList.add("hidden");
-        return;
-      }
-
-      const monthly = (emiAmount / emiCount).toFixed(2);
-      monthlyEmiDiv.innerHTML = `<p><span class="bold green">💰 EMI per month (${emiCount}):</span> ₹${monthly}</p>`;
-      document.getElementById("payBtn").classList.remove("hidden");
-    }
-
-    function payNow() {
-      document.getElementById("paidMsg").innerHTML = "✅ Payment successful! EMI Plan activated.";
-    }
-  </script>
+function payNow() {
+  document.getElementById("paidMsg").textContent = "✅ Payment successful! EMI plan activated.";
+}
+</script>
 
 </body>
 </html>
