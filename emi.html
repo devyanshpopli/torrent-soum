@@ -8,9 +8,9 @@
     body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; }
     .container { max-width: 500px; background: white; padding: 30px; border-radius: 10px; margin: auto; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
     h2 { text-align: center; color: #333; font-size: 26px; }
-    input, button { width: 100%; padding: 12px; margin-top: 15px; font-size: 18px; border-radius: 6px; border: 1px solid #ccc; }
+    input, button, select { width: 100%; padding: 12px; margin-top: 15px; font-size: 18px; border-radius: 6px; border: 1px solid #ccc; }
     button { background-color: orange; color: white; border: none; }
-    button:hover { background-color: orange; cursor: pointer; }
+    button:hover { background-color: darkorange; cursor: pointer; }
     .bold { font-weight: bold; }
     .result, .emi-section { font-size: 18px; margin-top: 20px; }
     .green { color: green; }
@@ -22,7 +22,7 @@
 </head>
 <body>
 
-  <!-- Step 1: Service No Check -->
+  <!-- Step 1 -->
   <div class="container" id="step1">
     <h2>EMI Eligibility Checker</h2>
     <input type="text" id="serviceNo" placeholder="Enter Service Number">
@@ -31,107 +31,117 @@
     <button id="proceedBtn" class="hidden" onclick="showEMIBreakdown()">Proceed to EMI</button>
   </div>
 
-  <!-- Step 2: EMI Display -->
+  <!-- Step 2 -->
   <div class="container hidden" id="step2">
     <h2>EMI Breakdown</h2>
     <div id="emiDetails" class="emi-section"></div>
-    <button class="pay-btn" onclick="payNow()">Pay Now</button>
+    <label for="emiCount"><span class="bold">Select Number of EMIs:</span></label>
+    <select id="emiCount" onchange="updateMonthlyEMI()">
+      <option value="">-- Choose --</option>
+      <option value="3">3 months</option>
+      <option value="6">6 months</option>
+      <option value="9">9 months</option>
+      <option value="12">12 months</option>
+    </select>
+    <div id="monthlyEmi" class="emi-section"></div>
+    <button class="pay-btn hidden" id="payBtn" onclick="payNow()">Pay Now</button>
     <div id="paidMsg" class="green bold" style="margin-top: 15px;"></div>
   </div>
 
   <script>
-    const emiData = {
-      "670119030": {
-        "Name": "SHRI VIJAY GOYAL W/O SITA RAM",
-        "Category": "LMV1",
-        "Service Status": "LIVE",
-        "Total": 7227.74,
-        "Arrear": 433.30,
-        "Consumption": 935.2,
-        "Principle": 7208.57
-      },
-      "670157864": {
-        "Name": "SMT. RADHIKA",
-        "Category": "LMV2",
-        "Service Status": "LIVE",
-        "Total": 5915.22,
-        "Arrear": 2562.91,
-        "Consumption": 43.0,
-        "Principle": 5889.38
-      },
-      "670008363": {
-        "Name": "RAKESH KUMAR",
-        "Category": "LMV1",
-        "Service Status": "LIVE",
-        "Total": 11905.33,
-        "Arrear": 3613.8,
-        "Consumption": 1160.0,
-        "Principle": 11809.03
-      },
-      "670119035": {
-        "Name": "SHRI LAXMI CHAND",
-        "Category": "LMV1",
-        "Service Status": "PD",
-        "Total": 109598.53,
-        "Arrear": 108990.97,
-        "Consumption": 3253,
-        "Principle": 81158.91
-      },
-      "670001376": {
-        "Name": "SRI OMRAO PAHLEVAN",
-        "Category": "LMV1",
-        "Service Status": "PD",
-        "Total": 6695.80,
-        "Arrear": 6452.78,
-        "Consumption": 0,
-        "Principle": 4432.23
-      },
-      "670001450": {
-        "Name": "SRI SHIV SHANKER",
-        "Category": "LMV1",
-        "Service Status": "PD",
-        "Total": 21367.77,
-        "Arrear": 21154.37,
-        "Consumption": 80.2,
-        "Principle": 12100.03
-      },
-      "670010036": {
-        "Name": "THE SECETARY",
-        "Category": "LMV1",
-        "Service Status": "TD + 0",
-        "Total": 2215.75,
-        "Arrear": 21154.37,
-        "Consumption": 0,
-        "Principle": 1609.36
-      },
-      "670015875": {
-        "Name": "RAJNI VERMA",
-        "Category": "LMV1",
-        "Service Status": "TD + Consumption",
-        "Total": 8916.05,
-        "Arrear": 3634.01,
-        "Consumption": 757,
-        "Principle": 8821.81
-      },
-      "670027680": {
-        "Name": "SRI VIMAL CHAND JAIN",
-        "Category": "LMV1",
-        "Service Status": "TD + 0",
-        "Total": 3447.94,
-        "Arrear": 3634.01,
-        "Consumption": 0,
-        "Principle": 2323.79
-      },
-      "670385256": {
-        "Name": "DESHRAJ SINGH",
-        "Category": "LMV1",
-        "Service Status": "TD + 0",
-        "Total": 1500.00,
-        "Arrear": 0.00,
-        "Consumption": 600,
-        "Principle": 1500
-      }
-    };
+const emiData = {
+  "670119030": {
+    "Name": "SHRI  VIJAY GOYAL W/O SITA RAM",
+    "Category": "LMV1",
+    "Service Status": "LIVE",
+    "Total": 7227.74,
+    "Arrear": 433.30,
+    "Consumption": 935.2,
+    "Principle": 7208.57
+  },
+  "670157864": {
+    "Name": "SMT. RADHIKA",
+    "Category": "LMV2",
+    "Service Status": "LIVE",
+    "Total": 5915.22,
+    "Arrear": 2562.91,
+    "Consumption": 43.0,
+    "Principle": 5889.38
+  },
+  "670008363": {
+    "Name": "RAKESH KUMAR",
+    "Category": "LMV1",
+    "Service Status": "LIVE",
+    "Total": 11905.33,
+    "Arrear": 3613.8,
+    "Consumption": 1160.0,
+    "Principle": 11809.03
+  },
+  "670119035": {
+    "Name": "SHRI LAXMI CHAND",
+    "Category": "LMV1",
+    "Service Status": "PD",
+    "Total": 109598.53,
+    "Arrear": 108990.97,
+    "Consumption": 3253,
+    "Principle": 81158.91
+  },
+  "670001376": {
+    "Name": "SRI OMRAO PAHLEVAN",
+    "Category": "LMV1",
+    "Service Status": "PD",
+    "Total": 6695.80,
+    "Arrear": 6452.78,
+    "Consumption": 0,
+    "Principle": 4432.23
+  },
+  "670001450": {
+    "Name": "SRI SHIV SHANKER",
+    "Category": "LMV1",
+    "Service Status": "PD",
+    "Total": 21367.77,
+    "Arrear": 21154.37,
+    "Consumption": 80.2,
+    "Principle": 12100.03
+  },
+  "670010036": {
+    "Name": "THE SECETARY",
+    "Category": "LMV1",
+    "Service Status": "TD + 0",
+    "Total": 2215.75,
+    "Arrear": 21154.37,
+    "Consumption": 0,
+    "Principle": 1609.36
+  },
+  "670015875": {
+    "Name": "RAJNI VERMA",
+    "Category": "LMV1",
+    "Service Status": "TD + Consumption",
+    "Total": 8916.05,
+    "Arrear": 3634.01,
+    "Consumption": 757,
+    "Principle": 8821.81
+  },
+  "670027680": {
+    "Name": "SRI VIMAL CHAND JAIN",
+    "Category": "LMV1",
+    "Service Status": "TD + 0",
+    "Total": 3447.94,
+    "Arrear": 3634.01,
+    "Consumption": 0,
+    "Principle": 2323.79
+  },
+  "670385256": {
+    "Name": "DESHRAJ SINGH",
+    "Category": "LMV1",
+    "Service Status": "TD + 0",
+    "Total": 1500.00,
+    "Arrear": 0.00,
+    "Consumption": 600,
+    "Principle": 1500
+  }
+};
+
 
     let currentClient = null;
     let downpayment = 0, emiAmount = 0, dpPercent = 0;
@@ -140,7 +150,8 @@
       const sn = document.getElementById("serviceNo").value.trim();
       const output = document.getElementById("output");
       const proceedBtn = document.getElementById("proceedBtn");
-      document.getElementById("paidMsg").textContent = ""; // reset
+      document.getElementById("paidMsg").textContent = "";
+      document.getElementById("payBtn").classList.add("hidden");
 
       if (!emiData[sn]) {
         output.innerHTML = `<span class="red bold">❌ Service number not found.</span>`;
@@ -163,7 +174,7 @@
         return;
       }
 
-      // Determine logic
+      // Logic
       if ((status === "TD" || status.includes("TD")) && Consumption == 0) dpPercent = 20;
       else if ((status === "TD" || status.includes("TD")) && Consumption > 0) dpPercent = 30;
       else if (status === "LIVE" || status === "PD") dpPercent = 40;
@@ -185,16 +196,36 @@
       document.getElementById("step1").classList.add("hidden");
       document.getElementById("step2").classList.remove("hidden");
 
+      document.getElementById("emiCount").value = "";
+      document.getElementById("monthlyEmi").innerHTML = "";
+      document.getElementById("paidMsg").innerHTML = "";
+      document.getElementById("payBtn").classList.add("hidden");
+
       const e = document.getElementById("emiDetails");
       e.innerHTML = `
         <p><span class="bold">Name:</span> ${currentClient.Name}</p>
-        <p><span class="bold">Service Status:</span> ${currentClient["Service Status"]}</p>
+        <p><span class="bold">Status:</span> ${currentClient["Service Status"]}</p>
         <p><span class="bold">Category:</span> ${currentClient.Category}</p>
         <p><span class="bold">Total Arrear:</span> ₹${currentClient.Total}</p>
         <hr>
         <p><span class="bold green">📊 Downpayment (${dpPercent}%):</span> ₹${downpayment}</p>
         <p><span class="bold green">💳 EMI Amount:</span> ₹${emiAmount}</p>
       `;
+    }
+
+    function updateMonthlyEMI() {
+      const emiCount = document.getElementById("emiCount").value;
+      const monthlyEmiDiv = document.getElementById("monthlyEmi");
+
+      if (!emiCount || emiAmount == 0) {
+        monthlyEmiDiv.innerHTML = "";
+        document.getElementById("payBtn").classList.add("hidden");
+        return;
+      }
+
+      const monthly = (emiAmount / emiCount).toFixed(2);
+      monthlyEmiDiv.innerHTML = `<p><span class="bold green">💰 EMI per month (${emiCount}):</span> ₹${monthly}</p>`;
+      document.getElementById("payBtn").classList.remove("hidden");
     }
 
     function payNow() {
