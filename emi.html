@@ -24,7 +24,12 @@
   <h2>EMI Eligibility Checker</h2>
   <input type="text" id="serviceNo" placeholder="Enter Service Number">
   <button onclick="checkEMI()">Check</button>
+  <p style="margin-top:10px; font-size:14px; color:#555; text-align:center;">
+  By checking eligibility, you agree to our  
+  <a href="terms.html" target="_blank" style="color:blue; cursor:pointer; text-decoration:underline;">Terms & Conditions</a>.
+</p>
   <div id="output" class="result"></div>
+
   <button id="proceedBtn" class="hidden" onclick="showEMIBreakdown()">Proceed to EMI</button>
 </div>
 
@@ -222,7 +227,8 @@ function showEMIBreakdown() {
     <p><span class="bold">Status:</span> ${currentClient["Service Status"]}</p>
     <p><span class="bold">Category:</span> ${currentClient.Category}</p>
     <p><span class="bold">Total:</span> ₹${currentClient.Total.toFixed(2)}</p>
-    <hr>
+   <p class="red" style="margin-top: -10px;">✳️ Plus applicable surcharges as per honourable UPERC tariff order</p>
+  <hr>
     <p><span class="bold green">📊 Downpayment:</span> ₹${downpayment.toFixed(2)}</p>
     <p><span class="bold green">💳 Remaining for EMI:</span> ₹${emiAmount.toFixed(2)}</p>
   `;
